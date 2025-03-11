@@ -1,177 +1,142 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/function-component-definition */
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-// Material Dashboard 2 React components
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Modal, Button, Box, Typography } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
+import PropTypes from "prop-types";
 
-// Images
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
+export default function Data() {
+  const [students, setStudents] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
-export default function data() {
-  const Author = ({ image, name, email }) => (
-    <MDBox display="flex" alignItems="center" lineHeight={1}>
-      <MDAvatar src={image} name={name} size="sm" />
-      <MDBox ml={2} lineHeight={1}>
-        <MDTypography display="block" variant="button" fontWeight="medium">
+  // Fetch students
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/students")
+      .then((response) => setStudents(response.data))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
+  // Handle row click
+  const handleRowClick = (student) => {
+    setSelectedStudent(student);
+    setShowDetailsModal(true);
+  };
+
+  // Close the modal
+  const handleCloseModal = () => {
+    setShowDetailsModal(false);
+    setSelectedStudent(null);
+  };
+
+  // Student name component
+  const Student = ({ name }) => (
+    <MDBox display="flex" alignItems="center">
+      <MDAvatar alt={name} size="sm" />
+      <MDBox ml={2}>
+        <MDTypography variant="button" fontWeight="medium">
           {name}
         </MDTypography>
-        <MDTypography variant="caption">{email}</MDTypography>
       </MDBox>
     </MDBox>
   );
 
-  const Job = ({ title, description }) => (
-    <MDBox lineHeight={1} textAlign="left">
-      <MDTypography display="block" variant="caption" color="text" fontWeight="medium">
-        {title}
-      </MDTypography>
-      <MDTypography variant="caption">{description}</MDTypography>
-    </MDBox>
-  );
+  Student.propTypes = {
+    name: PropTypes.string.isRequired,
+  };
 
   return {
     columns: [
-      { Header: "author", accessor: "author", width: "45%", align: "left" },
-      { Header: "function", accessor: "function", align: "left" },
-      { Header: "status", accessor: "status", align: "center" },
-      { Header: "employed", accessor: "employed", align: "center" },
-      { Header: "action", accessor: "action", align: "center" },
+      { Header: "ID", accessor: "id", align: "left" },
+      { Header: "Student", accessor: "name", align: "center" },
+      { Header: "Govnmt/Passport ID", accessor: "governmentId", align: "center" },
+      { Header: "Category", accessor: "category", align: "center" },
+      { Header: "Phone Number", accessor: "phone", align: "center" },
+      { Header: "Start Date", accessor: "startDate", align: "center" },
+      { Header: "Teachers", accessor: "teachersId", align: "left" },
+      { Header: "Status", accessor: "status", align: "center" },
+      { Header: "Result", accessor: "result", align: "center" },
+      { Header: "Branch", accessor: "branch", align: "center" },
     ],
-
-    rows: [
-      {
-        author: <Author image={team2} name="John Michael" email="john@creative-tim.com" />,
-        function: <Job title="Manager" description="Organization" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            23/04/18
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Alexa Liras" email="alexa@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            11/01/19
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team4} name="Laurent Perrier" email="laurent@creative-tim.com" />,
-        function: <Job title="Executive" description="Projects" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            19/09/17
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Michael Levi" email="michael@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            24/12/08
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Richard Gran" email="richard@creative-tim.com" />,
-        function: <Job title="Manager" description="Executive" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            04/10/21
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team4} name="Miriam Eric" email="miriam@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            14/09/20
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-    ],
+    rows: students.map((student) => ({
+      id: student.id.toString(),
+      name: <Student name={`${student.first_name} ${student.last_name}`} />,
+      governmentId: student.government_id,
+      category: student.category,
+      phone: student.phone,
+      startDate: student.start_date,
+      teachersId: student.teacher_id,
+      branch: student.branch,
+      status: (
+        <MDBox ml={-1}>
+          <MDBadge badgeContent={student.status} color="success" variant="gradient" size="sm" />
+        </MDBox>
+      ),
+      result: (
+        <MDTypography variant="caption" color="text" fontWeight="medium">
+          {student.result}
+        </MDTypography>
+      ),
+      action: (
+        <Button variant="contained" color="primary" size="small" onClick={() => handleRowClick(student)}>
+          View Details
+        </Button>
+      ),
+    })),
+    studentDetailsModal: (
+      <StudentDetailsModal
+        open={showDetailsModal}
+        student={selectedStudent}
+        onClose={handleCloseModal}
+      />
+    ),
   };
 }
+
+// Modal Component
+const StudentDetailsModal = ({ open, student, onClose }) => {
+  if (!student) return null;
+
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 400,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: "10px",
+        }}
+      >
+        <Typography variant="h6" gutterBottom>
+          Student Details
+        </Typography>
+        <Typography>ID: {student.id}</Typography>
+        <Typography>Name: {student.first_name} {student.last_name}</Typography>
+        <Typography>Govt ID: {student.government_id}</Typography>
+        <Typography>Category: {student.category}</Typography>
+        <Typography>Phone: {student.phone}</Typography>
+        <Typography>Start Date: {student.start_date}</Typography>
+        <Typography>Branch: {student.branch}</Typography>
+        <Typography>Status: {student.status}</Typography>
+        <Typography>Result: {student.result}</Typography>
+        <Button onClick={onClose} variant="contained" color="secondary" sx={{ mt: 2 }}>
+          Close
+        </Button>
+      </Box>
+    </Modal>
+  );
+};
+
+StudentDetailsModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  student: PropTypes.object,
+  onClose: PropTypes.func.isRequired,
+};

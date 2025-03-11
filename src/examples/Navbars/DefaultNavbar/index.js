@@ -110,7 +110,7 @@ function DefaultNavbar({ transparent, light, action }) {
           pl={{ xs: 0, lg: 1 }}
         >
           <MDTypography variant="button" fontWeight="bold" color={light ? "white" : "dark"}>
-            Material Dashboard 2
+            Student Management
           </MDTypography>
         </MDBox>
         <MDBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
@@ -168,6 +168,11 @@ function DefaultNavbar({ transparent, light, action }) {
           onClick={openMobileNavbar}
         >
           <Icon fontSize="default">{mobileNavbar ? "close" : "menu"}</Icon>
+        </MDBox>
+        <MDBox display={{ xs: "none", lg: "inline-block" }}>
+          <MDButton component={Link} to="/enroll" variant="gradient" color="info" size="small">
+            Enroll
+          </MDButton>
         </MDBox>
       </MDBox>
       {mobileView && <DefaultNavbarMobile open={mobileNavbar} close={closeMobileNavbar} />}

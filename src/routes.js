@@ -40,10 +40,14 @@ import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
 import Billing from "layouts/billing";
 import RTL from "layouts/rtl";
+import File from "layouts/Files/StudentDoc"
 import Notifications from "layouts/notifications";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import EnrollStudents from "layouts/Enroll/EnrollStudents";
+import TeachersTable from "layouts/Teachers/TeachersTable";
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -67,20 +71,44 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Enroll", // Name of the new route
+    key: "enroll",
+    icon: <Icon fontSize="small">school</Icon>, // You can use any icon you like
+    route: "/enroll",
+    component: <EnrollStudents />, // EnrollPage component
+  },
+  {
+    type: "collapse",
+    name: "Teachers", // Name of the new route
+    key: "teachers",
+    icon: <Icon fontSize="small"> <EmojiPeopleIcon /> </Icon>, // You can use any icon you like
+    route: "/teachers",
+    component: <TeachersTable />, // EnrollPage component
+  },
+  {
+    type: "collapse",
+    name: "Documents",
+    key: "StudentDoc",
+    icon: <Icon fontSize="small">folder</Icon>,
+    route: "/files",
+    component: <File />,
+  },
+  {
+    type: "collapse",
     name: "Billing",
     key: "billing",
     icon: <Icon fontSize="small">receipt_long</Icon>,
     route: "/billing",
     component: <Billing />,
   },
-  {
+  {/*
     type: "collapse",
     name: "RTL",
     key: "rtl",
     icon: <Icon fontSize="small">format_textdirection_r_to_l</Icon>,
     route: "/rtl",
     component: <RTL />,
-  },
+  */},
   {
     type: "collapse",
     name: "Notifications",

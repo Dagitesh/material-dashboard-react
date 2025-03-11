@@ -1,41 +1,18 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useMemo, useEffect, useState } from "react";
-
-// prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
-
-// react-table components
 import { useTable, usePagination, useGlobalFilter, useAsyncDebounce, useSortBy } from "react-table";
-
-// @mui material components
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Icon from "@mui/material/Icon";
 import Autocomplete from "@mui/material/Autocomplete";
-
-// Material Dashboard 2 React components
+import Modal from "@mui/material/Modal"; // Import Modal
+import Button from "@mui/material/Button"; // Import Button
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDPagination from "components/MDPagination";
-
-// Material Dashboard 2 React example components
 import DataTableHeadCell from "examples/Tables/DataTable/DataTableHeadCell";
 import DataTableBodyCell from "examples/Tables/DataTable/DataTableBodyCell";
 
@@ -79,6 +56,22 @@ function DataTable({
     setGlobalFilter,
     state: { pageIndex, pageSize, globalFilter },
   } = tableInstance;
+
+  // State for modal
+  const [selectedRow, setSelectedRow] = useState(null); // Store selected row data
+  const [isModalOpen, setIsModalOpen] = useState(false); // Control modal visibility
+
+  // Handle row click
+  const handleRowClick = (row) => {
+    setSelectedRow(row.original); // Store the selected row data
+    setIsModalOpen(true); // Open the modal
+  };
+
+  // Close the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRow(null);
+  };
 
   // Set the default value for the entries per page when component mounts
   useEffect(() => setPageSize(defaultValue || 10), [defaultValue]);
@@ -146,126 +139,167 @@ function DataTable({
   }
 
   return (
-    <TableContainer sx={{ boxShadow: "none" }}>
-      {entriesPerPage || canSearch ? (
-        <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-          {entriesPerPage && (
-            <MDBox display="flex" alignItems="center">
-              <Autocomplete
-                disableClearable
-                value={pageSize.toString()}
-                options={entries}
-                onChange={(event, newValue) => {
-                  setEntriesPerPage(parseInt(newValue, 10));
-                }}
-                size="small"
-                sx={{ width: "5rem" }}
-                renderInput={(params) => <MDInput {...params} />}
-              />
-              <MDTypography variant="caption" color="secondary">
-                &nbsp;&nbsp;entries per page
+    <>
+      <TableContainer sx={{ boxShadow: "none" }}>
+        {entriesPerPage || canSearch ? (
+          <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
+            {entriesPerPage && (
+              <MDBox display="flex" alignItems="center">
+                <Autocomplete
+                  disableClearable
+                  value={pageSize.toString()}
+                  options={entries}
+                  onChange={(event, newValue) => {
+                    setEntriesPerPage(parseInt(newValue, 10));
+                  }}
+                  size="small"
+                  sx={{ width: "5rem" }}
+                  renderInput={(params) => <MDInput {...params} />}
+                />
+                <MDTypography variant="caption" color="secondary">
+                  &nbsp;&nbsp;entries per page
+                </MDTypography>
+              </MDBox>
+            )}
+            {canSearch && (
+              <MDBox width="12rem" ml="auto">
+                <MDInput
+                  placeholder="Search..."
+                  value={search}
+                  size="small"
+                  fullWidth
+                  onChange={({ currentTarget }) => {
+                    setSearch(search);
+                    onSearchChange(currentTarget.value);
+                  }}
+                />
+              </MDBox>
+            )}
+          </MDBox>
+        ) : null}
+        <Table {...getTableProps()}>
+          <MDBox component="thead">
+            {headerGroups.map((headerGroup, key) => (
+              <TableRow key={key} {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column, idx) => (
+                  <DataTableHeadCell
+                    key={idx}
+                    {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
+                    width={column.width ? column.width : "auto"}
+                    align={column.align ? column.align : "left"}
+                    sorted={setSortedValue(column)}
+                  >
+                    {column.render("Header")}
+                  </DataTableHeadCell>
+                ))}
+              </TableRow>
+            ))}
+          </MDBox>
+          <TableBody {...getTableBodyProps()}>
+            {page.map((row, key) => {
+              prepareRow(row);
+              return (
+                <TableRow
+                  key={key}
+                  {...row.getRowProps()}
+                  onClick={() => handleRowClick(row)} // Make the row clickable
+                  style={{ cursor: "pointer" }} // Add pointer cursor
+                >
+                  {row.cells.map((cell, idx) => (
+                    <DataTableBodyCell
+                      key={idx}
+                      noBorder={noEndBorder && rows.length - 1 === key}
+                      align={cell.column.align ? cell.column.align : "left"}
+                      {...cell.getCellProps()}
+                    >
+                      {cell.render("Cell")}
+                    </DataTableBodyCell>
+                  ))}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+
+        <MDBox
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          p={!showTotalEntries && pageOptions.length === 1 ? 0 : 3}
+        >
+          {showTotalEntries && (
+            <MDBox mb={{ xs: 3, sm: 0 }}>
+              <MDTypography variant="button" color="secondary" fontWeight="regular">
+                Showing {entriesStart} to {entriesEnd} of {rows.length} entries
               </MDTypography>
             </MDBox>
           )}
-          {canSearch && (
-            <MDBox width="12rem" ml="auto">
-              <MDInput
-                placeholder="Search..."
-                value={search}
-                size="small"
-                fullWidth
-                onChange={({ currentTarget }) => {
-                  setSearch(search);
-                  onSearchChange(currentTarget.value);
-                }}
-              />
-            </MDBox>
+          {pageOptions.length > 1 && (
+            <MDPagination
+              variant={pagination.variant ? pagination.variant : "gradient"}
+              color={pagination.color ? pagination.color : "info"}
+            >
+              {canPreviousPage && (
+                <MDPagination item onClick={() => previousPage()}>
+                  <Icon sx={{ fontWeight: "bold" }}>chevron_left</Icon>
+                </MDPagination>
+              )}
+              {renderPagination.length > 6 ? (
+                <MDBox width="5rem" mx={1}>
+                  <MDInput
+                    inputProps={{ type: "number", min: 1, max: customizedPageOptions.length }}
+                    value={customizedPageOptions[pageIndex]}
+                    onChange={(handleInputPagination, handleInputPaginationValue)}
+                  />
+                </MDBox>
+              ) : (
+                renderPagination
+              )}
+              {canNextPage && (
+                <MDPagination item onClick={() => nextPage()}>
+                  <Icon sx={{ fontWeight: "bold" }}>chevron_right</Icon>
+                </MDPagination>
+              )}
+            </MDPagination>
           )}
         </MDBox>
-      ) : null}
-      <Table {...getTableProps()}>
-        <MDBox component="thead">
-          {headerGroups.map((headerGroup, key) => (
-            <TableRow key={key} {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, idx) => (
-                <DataTableHeadCell
-                  key={idx}
-                  {...column.getHeaderProps(isSorted && column.getSortByToggleProps())}
-                  width={column.width ? column.width : "auto"}
-                  align={column.align ? column.align : "left"}
-                  sorted={setSortedValue(column)}
-                >
-                  {column.render("Header")}
-                </DataTableHeadCell>
-              ))}
-            </TableRow>
-          ))}
-        </MDBox>
-        <TableBody {...getTableBodyProps()}>
-          {page.map((row, key) => {
-            prepareRow(row);
-            return (
-              <TableRow key={key} {...row.getRowProps()}>
-                {row.cells.map((cell, idx) => (
-                  <DataTableBodyCell
-                    key={idx}
-                    noBorder={noEndBorder && rows.length - 1 === key}
-                    align={cell.column.align ? cell.column.align : "left"}
-                    {...cell.getCellProps()}
-                  >
-                    {cell.render("Cell")}
-                  </DataTableBodyCell>
-                ))}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      </TableContainer>
 
-      <MDBox
-        display="flex"
-        flexDirection={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        p={!showTotalEntries && pageOptions.length === 1 ? 0 : 3}
-      >
-        {showTotalEntries && (
-          <MDBox mb={{ xs: 3, sm: 0 }}>
-            <MDTypography variant="button" color="secondary" fontWeight="regular">
-              Showing {entriesStart} to {entriesEnd} of {rows.length} entries
-            </MDTypography>
-          </MDBox>
-        )}
-        {pageOptions.length > 1 && (
-          <MDPagination
-            variant={pagination.variant ? pagination.variant : "gradient"}
-            color={pagination.color ? pagination.color : "info"}
-          >
-            {canPreviousPage && (
-              <MDPagination item onClick={() => previousPage()}>
-                <Icon sx={{ fontWeight: "bold" }}>chevron_left</Icon>
-              </MDPagination>
-            )}
-            {renderPagination.length > 6 ? (
-              <MDBox width="5rem" mx={1}>
-                <MDInput
-                  inputProps={{ type: "number", min: 1, max: customizedPageOptions.length }}
-                  value={customizedPageOptions[pageIndex]}
-                  onChange={(handleInputPagination, handleInputPaginationValue)}
-                />
-              </MDBox>
-            ) : (
-              renderPagination
-            )}
-            {canNextPage && (
-              <MDPagination item onClick={() => nextPage()}>
-                <Icon sx={{ fontWeight: "bold" }}>chevron_right</Icon>
-              </MDPagination>
-            )}
-          </MDPagination>
-        )}
-      </MDBox>
-    </TableContainer>
+      {/* Modal to display selected row information */}
+      <Modal open={isModalOpen} onClose={handleCloseModal}>
+        <MDBox
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Button onClick={handleCloseModal} style={{ float: "right", color: "red" }}>
+            ✖
+          </Button>
+          <h2>Row Details</h2>
+          {selectedRow && (
+            <div>
+              {Object.entries(selectedRow).map(([key, value]) => (
+                <p key={key}>
+                  <strong>{key}:</strong> {value}
+                </p>
+              ))}
+            </div>
+          )}
+          <Button onClick={handleCloseModal} variant="contained" color="primary">
+            Close
+          </Button>
+        </MDBox>
+      </Modal>
+    </>
   );
 }
 
